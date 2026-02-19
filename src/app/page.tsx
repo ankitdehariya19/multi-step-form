@@ -12,8 +12,10 @@ import Alert from '@mui/material/Alert';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
+
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import AppStepper from '@/components/ui/AppStepper';
 import PersonalStep from '@/components/steps/PersonalStep';
@@ -41,8 +43,28 @@ const initialData: FormData = {
     agreedToTerms: false,
 };
 
-export default function GrievanceForm() {
-    const [currentStep, setCurrentStep] = React.useState(0);
+export default function Home() {
+    return (
+        <React.Suspense fallback={<CircularProgress />}>
+            <GrievanceFormContent />
+        </React.Suspense>
+    );
+}
+
+function GrievanceFormContent() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+
+    const initialStep = Number(searchParams.get('step')) || 0;
+    const [currentStep, setCurrentStep] = React.useState(initialStep);
+
+
+    React.useEffect(() => {
+        const step = Number(searchParams.get('step')) || 0;
+        setCurrentStep(step);
+    }, [searchParams]);
+
     const [formData, setFormData] = React.useState<FormData>(initialData);
     const [errors, setErrors] = React.useState<Partial<Record<keyof FormData | string, string>>>({});
     const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -50,13 +72,11 @@ export default function GrievanceForm() {
     const [draftDialogOpen, setDraftDialogOpen] = React.useState(false);
     const [draftData, setDraftData] = React.useState<FormState | null>(null);
 
-
     React.useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-
                 const isSavedEmpty = parsed.currentStep === 0 &&
                     JSON.stringify(parsed.data) === JSON.stringify(initialData);
 
@@ -64,7 +84,6 @@ export default function GrievanceForm() {
                     setDraftData(parsed);
                     setDraftDialogOpen(true);
                 } else {
-
                     localStorage.removeItem(STORAGE_KEY);
                 }
             } catch (e) {
@@ -72,7 +91,6 @@ export default function GrievanceForm() {
             }
         }
     }, []);
-
 
     React.useEffect(() => {
         const timer = setInterval(() => {
@@ -84,11 +102,9 @@ export default function GrievanceForm() {
     }, [formData, currentStep, showSuccess]);
 
     const saveDraft = (silent = false) => {
-
         if (currentStep === 0 && JSON.stringify(formData) === JSON.stringify(initialData)) {
             localStorage.removeItem(STORAGE_KEY);
             if (!silent) {
-
                 alert('Draft saved!');
             }
             return;
@@ -101,7 +117,6 @@ export default function GrievanceForm() {
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         if (!silent) {
-
             alert('Draft saved!');
         }
     };
@@ -110,6 +125,8 @@ export default function GrievanceForm() {
         if (draftData) {
             setFormData(draftData.data);
             setCurrentStep(draftData.currentStep);
+
+            router.replace(`?step=${draftData.currentStep}`);
         }
         setDraftDialogOpen(false);
     };
@@ -142,17 +159,27 @@ export default function GrievanceForm() {
 
     const handleNext = () => {
         if (validateStep(currentStep)) {
-            setCurrentStep((prev) => prev + 1);
+            const nextStep = currentStep + 1;
+
+            router.push(`?step=${nextStep}`);
         }
     };
 
     const handleBack = () => {
-        setCurrentStep((prev) => prev - 1);
+
+        const prevStep = currentStep - 1;
+        if (prevStep >= 0) {
+            router.push(`?step=${prevStep}`);
+        }
+    };
+
+
+    const handleJumpToStep = (step: number) => {
+        router.push(`?step=${step}`);
     };
 
     const updateFormData = (fields: Partial<FormData>) => {
         setFormData((prev) => ({ ...prev, ...fields }));
-
         const newErrors = { ...errors };
         Object.keys(fields).forEach((key) => {
             delete newErrors[key];
@@ -170,7 +197,8 @@ export default function GrievanceForm() {
                 setShowSuccess(true);
                 clearDraft();
                 setFormData(initialData);
-                setCurrentStep(0);
+
+                router.replace('?step=0');
             }
         } catch (error) {
             console.error(error);
@@ -193,7 +221,7 @@ export default function GrievanceForm() {
                     <ReviewStep
                         data={formData}
                         updateData={updateFormData}
-                        goToStep={setCurrentStep}
+                        goToStep={handleJumpToStep}
                         errors={errors}
                     />
                 );
@@ -249,7 +277,6 @@ export default function GrievanceForm() {
                 </Box>
             </Paper>
 
-
             <Dialog open={draftDialogOpen} onClose={() => setDraftDialogOpen(false)}>
                 <DialogTitle>Restore Draft?</DialogTitle>
                 <DialogContent>
@@ -265,7 +292,6 @@ export default function GrievanceForm() {
                 </DialogActions>
             </Dialog>
 
-
             <Snackbar open={showSuccess} autoHideDuration={6000} onClose={() => setShowSuccess(false)}>
                 <Alert onClose={() => setShowSuccess(false)} severity="success" sx={{ width: '100%' }}>
                     Grievance submitted successfully!
@@ -274,3 +300,5 @@ export default function GrievanceForm() {
         </Container>
     );
 }
+
+
