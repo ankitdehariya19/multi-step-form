@@ -72,6 +72,7 @@ export default function GrievanceStep({ data, updateData, errors }: GrievanceSte
         label="Date of Incident"
         type="date"
         InputLabelProps={{ shrink: true }}
+        inputProps={{ max: new Date().toISOString().split('T')[0] }}
         value={data.incidentDate}
         onChange={handleChange('incidentDate')}
         error={!!errors.incidentDate}
