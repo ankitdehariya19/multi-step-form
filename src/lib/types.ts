@@ -1,39 +1,43 @@
 export interface PersonalDetails {
-    fullName: string;
-    email: string;
-    phone?: string;
-    address: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  address: string;
 }
 
-export type GrievanceCategory = 'Service Issue' | 'Billing' | 'Technical Support' | 'Refund' | 'Other';
+export type GrievanceCategory =
+  | 'Service Issue'
+  | 'Billing'
+  | 'Technical Support'
+  | 'Refund'
+  | 'Other';
 
 export interface GrievanceDetails {
-    category: GrievanceCategory;
-    subject: string;
-    description: string;
-    incidentDate: string;
+  category: GrievanceCategory;
+  subject: string;
+  description: string;
+  incidentDate: string;
 }
 
 export interface DocumentFile {
-    name: string;
-    size: number;
-    type: string;
-    base64: string;
+  name: string;
+  size: number;
+  type: string;
+  base64: string;
 }
 
 export interface DocumentsDetails {
-    files: DocumentFile[];
+  files: DocumentFile[];
 }
 
-
 export interface FormData extends PersonalDetails, GrievanceDetails, DocumentsDetails {
-    agreedToTerms: boolean;
+  agreedToTerms: boolean;
 }
 
 export type FormStep = 'personal' | 'grievance' | 'documents' | 'review';
 
 export interface FormState {
-    currentStep: number;
-    data: FormData;
-    isLoaded: boolean;
+  currentStep: number;
+  data: FormData;
+  isLoaded: boolean;
 }
