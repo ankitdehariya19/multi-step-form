@@ -3,12 +3,12 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
-import { GrievanceDetails, GrievanceCategory } from '@/lib/types';
+import { GrievanceDetails, GrievanceCategory, FormErrors } from '@/lib/types';
 
 interface GrievanceStepProps {
   data: GrievanceDetails;
   updateData: (fields: Partial<GrievanceDetails>) => void;
-  errors: Partial<Record<keyof GrievanceDetails, string>>;
+  errors: FormErrors;
 }
 
 const categories: GrievanceCategory[] = [
@@ -22,9 +22,9 @@ const categories: GrievanceCategory[] = [
 export default function GrievanceStep({ data, updateData, errors }: GrievanceStepProps) {
   const handleChange =
     (field: keyof GrievanceDetails) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      updateData({ [field]: e.target.value });
-    };
+      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        updateData({ [field]: e.target.value });
+      };
 
   return (
     <Box

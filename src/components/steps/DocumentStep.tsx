@@ -9,12 +9,12 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Alert from '@mui/material/Alert';
-import { DocumentsDetails, DocumentFile } from '@/lib/types';
+import { DocumentsDetails, DocumentFile, FormErrors } from '@/lib/types';
 
 interface DocumentStepProps {
   data: DocumentsDetails;
   updateData: (fields: Partial<DocumentsDetails>) => void;
-  errors: Partial<Record<string, string>>;
+  errors: FormErrors;
 }
 
 export default function DocumentStep({ data, updateData, errors }: DocumentStepProps) {

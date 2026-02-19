@@ -20,7 +20,7 @@ import GrievanceStep from '@/components/steps/GrievanceStep';
 import DocumentStep from '@/components/steps/DocumentStep';
 import ReviewStep from '@/components/steps/ReviewStep';
 
-import { FormData, FormState } from '@/lib/types';
+import { FormData, FormState, FormErrors } from '@/lib/types';
 import { personalSchema, grievanceSchema, documentsSchema, reviewSchema } from '@/lib/schemas';
 import { submitGrievance } from '@/app/actions/grievance';
 import { ZodError } from 'zod';
@@ -55,7 +55,7 @@ export default function GrievanceForm() {
     }, [searchParams]);
 
     const [formData, setFormData] = React.useState<FormData>(initialData);
-    const [errors, setErrors] = React.useState<Partial<Record<keyof FormData | string, string>>>({});
+    const [errors, setErrors] = React.useState<FormErrors>({});
     const [isPending, startTransition] = React.useTransition();
     const [showSuccess, setShowSuccess] = React.useState(false);
     const [successMessage, setSuccessMessage] = React.useState('');
@@ -149,10 +149,11 @@ export default function GrievanceForm() {
             return true;
         } catch (error) {
             if (error instanceof ZodError) {
-                const newErrors: Record<string, string> = {};
+                const newErrors: FormErrors = {};
                 error.errors.forEach((err) => {
-                    if (err.path) {
-                        newErrors[err.path[0]] = err.message;
+                    if (err.path && err.path.length > 0) {
+                        const field = err.path[0] as keyof FormData;
+                        newErrors[field] = err.message;
                     }
                 });
                 setErrors(newErrors);
@@ -191,7 +192,7 @@ export default function GrievanceForm() {
         setFormData((prev) => ({ ...prev, ...fields }));
         const newErrors = { ...errors };
         Object.keys(fields).forEach((key) => {
-            delete newErrors[key];
+            delete newErrors[key as keyof FormData];
         });
         setErrors(newErrors);
     };
@@ -212,7 +213,13 @@ export default function GrievanceForm() {
                 } else {
                     alert(result.message || 'Submission failed');
                     if (result.errors) {
-                        console.error("Server validation errors", result.errors);
+                        const newErrors: FormErrors = {};
+                        Object.entries(result.errors).forEach(([key, messages]) => {
+                            if (messages && messages.length > 0) {
+                                newErrors[key as keyof FormData] = messages[0];
+                            }
+                        });
+                        setErrors(newErrors);
                     }
                 }
             } catch (error) {
@@ -225,9 +232,9 @@ export default function GrievanceForm() {
     const getStepContent = (step: number) => {
         switch (step) {
             case 0:
-                return <PersonalStep data={formData} updateData={updateFormData} errors={errors as any} />;
+                return <PersonalStep data={formData} updateData={updateFormData} errors={errors} />;
             case 1:
-                return <GrievanceStep data={formData} updateData={updateFormData} errors={errors as any} />;
+                return <GrievanceStep data={formData} updateData={updateFormData} errors={errors} />;
             case 2:
                 return <DocumentStep data={formData} updateData={updateFormData} errors={errors} />;
             case 3:
@@ -261,7 +268,6 @@ export default function GrievanceForm() {
                             <Button
                                 color="inherit"
                                 onClick={() => saveDraft(false)}
-                                sx={{ mr: 1, display: { xs: 'none', sm: 'inline-flex' } }}
                             >
                                 Save Draft
                             </Button>

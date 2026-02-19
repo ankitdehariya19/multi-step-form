@@ -2,20 +2,20 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { PersonalDetails } from '@/lib/types';
+import { PersonalDetails, FormErrors } from '@/lib/types';
 
 interface PersonalStepProps {
   data: PersonalDetails;
   updateData: (fields: Partial<PersonalDetails>) => void;
-  errors: Partial<Record<keyof PersonalDetails, string>>;
+  errors: FormErrors;
 }
 
 export default function PersonalStep({ data, updateData, errors }: PersonalStepProps) {
   const handleChange =
     (field: keyof PersonalDetails) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      updateData({ [field]: e.target.value });
-    };
+      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        updateData({ [field]: e.target.value });
+      };
 
   return (
     <Box

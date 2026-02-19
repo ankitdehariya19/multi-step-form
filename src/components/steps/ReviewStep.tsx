@@ -7,13 +7,13 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import { FormData } from '@/lib/types';
+import { FormData, FormErrors } from '@/lib/types';
 
 interface ReviewStepProps {
   data: FormData;
   updateData: (fields: Partial<FormData>) => void;
   goToStep: (step: number) => void;
-  errors: Partial<Record<string, string>>;
+  errors: FormErrors;
 }
 
 export default function ReviewStep({ data, updateData, goToStep, errors }: ReviewStepProps) {

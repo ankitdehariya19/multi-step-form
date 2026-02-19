@@ -41,3 +41,6 @@ export interface FormState {
   data: FormData;
   isLoaded: boolean;
 }
+
+export type FormErrors = Partial<Record<keyof FormData, string>>;
+
