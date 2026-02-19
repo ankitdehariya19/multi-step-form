@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
       transform: '@mui/icons-material/{{member}}',
     },
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
 };
 
 export default nextConfig;
